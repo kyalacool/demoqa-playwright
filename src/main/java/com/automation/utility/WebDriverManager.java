@@ -35,7 +35,6 @@ public class WebDriverManager {
                     default -> playwright.chromium().launch(options);
                 };
         browserThreadLocal.set(browser);
-        log.info("SETUP - Browser : {}", browserProperty);
         BrowserContext context = browser.newContext();
         contextThreadLocal.set(context);
         Page page = context.newPage();
@@ -45,7 +44,6 @@ public class WebDriverManager {
     public void tearDownDriver() {
         if (pageThreadLocal.get() != null) {
             pageThreadLocal.get().close();
-            log.info("CLOSE - Page is closed.");
         }
         if (contextThreadLocal.get() != null) {
             contextThreadLocal.get().close();
@@ -55,8 +53,6 @@ public class WebDriverManager {
         }
         if (playwrightThreadLocal.get() != null) {
             playwrightThreadLocal.get().close();
-            log.info("CLOSE - Driver is closed.");
-            log.info(" --- --- ---");
         }
         pageThreadLocal.remove();
         contextThreadLocal.remove();
@@ -68,7 +64,6 @@ public class WebDriverManager {
         String env = getProperty("env").toLowerCase();
         switch (env) {
             case "local" -> {
-                log.info("SETUP - Environment : {}", getProperty("env"));
                 return urlType.LOCAL.url;
             }
         }

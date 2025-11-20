@@ -12,7 +12,7 @@ import java.util.Map;
 
 @Slf4j
 public class ElementsMainPage extends BasePage {
-    private final String textBoxUrl;
+    protected final String textBoxUrl;
     private final List<Map<String,String>> expectedSubMenuNamesAndRoutes;
 
     public ElementsMainPage(Page page) {
@@ -49,6 +49,6 @@ public class ElementsMainPage extends BasePage {
             Assert.assertEquals(actualSubPageRoute, expextedSubPageRoute);
             page.goBack();
         }
-        log.info("VERIFY - Elements Menu subpages names and routes are verified");
+        log.info("Elements Menu subpages names and routes are verified");
     }
 }

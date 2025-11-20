@@ -40,6 +40,6 @@ public class HomePage extends BasePage {
             Assert.assertEquals(page.url(), expectedMenuUrl);
             page.goBack();
         }
-        log.info("VERIFY - MainMenu names and routes are verified");
+        log.info("MainMenu names and routes are verified");
     }
 }

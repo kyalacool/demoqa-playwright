@@ -1,127 +1,104 @@
 package com.automation.page.elements;
 
-import com.automation.page.BasePage;
+import com.automation.base.BasePage;
+import com.automation.model.TextBoxData;
 import com.automation.utility.PropertyReader;
-import com.automation.utility.WebDriverManager;
 import com.microsoft.playwright.Locator;
 import com.microsoft.playwright.Page;
 import com.microsoft.playwright.options.AriaRole;
+import lombok.Getter;
 import lombok.extern.slf4j.Slf4j;
 import org.testng.Assert;
 
-import java.util.List;
-import java.util.Map;
+import java.util.regex.Pattern;
+
+import static com.microsoft.playwright.assertions.PlaywrightAssertions.assertThat;
 
 @Slf4j
 public class TextBoxPage extends BasePage {
-    private final String textBoxUrl;
-    private final String title;
-    private final Locator titleLocator;
     private final Locator nameInput;
     private final Locator emailInput;
     private final Locator currentAddressInput;
     private final Locator permanentAddressInput;
     private final Locator submitButton;
+    @Getter
     private final Locator nameResult;
+    @Getter
     private final Locator emailResult;
+    @Getter
     private final Locator currentResult;
+    @Getter
     private final Locator permanentResult;
-
-    private final Map<String, String> dataMap = Map.of(
-            "name", "Bence Varga",
-            "email", "bencevarga@gmail.com",
-            "invalidEmail", "asa",
-            "current", "Bp. 1123 Ilka utca 6.",
-            "permanent", "Szeged Tiszavirág utca 8.");
+    @Getter
+    private final Locator mainHeader;
+    @Getter
+    private final Locator textboxOutput;
+    @Getter
+    private final Locator textBoxOutPutParagraphs;
 
     public TextBoxPage(Page page) {
         super(page);
-        PropertyReader.getInstance();
-        this.textBoxUrl = WebDriverManager.getHomeUrl() + PropertyReader.getProperty("url.textbox");
         this.nameInput = page.getByPlaceholder("Full Name");
         this.emailInput = page.getByPlaceholder("name@example.com");
         this.currentAddressInput = page.getByPlaceholder("Current Address");
         this.permanentAddressInput = page.locator("#permanentAddress");
         this.submitButton = page.getByRole(AriaRole.BUTTON, new Page.GetByRoleOptions().setName("Submit"));
-        this.nameResult = page.locator("#name");
-        this.emailResult = page.locator("#email");
-        this.currentResult = page.locator("#currentAddress");
-        this.permanentResult = page.locator("#permanentAddress");
-        this.title = "Text Box";
-        this.titleLocator = page.locator("h1.text-center");
+        this.nameResult = page.locator("p#name");
+        this.emailResult = page.locator("p#email");
+        this.currentResult = page.locator("p#currentAddress");
+        this.permanentResult = page.locator("p#permanentAddress");
+        this.mainHeader = page.locator("h1.text-center");
+        this.textboxOutput = page.locator("div #output");
+        this.textBoxOutPutParagraphs = page.locator("div #output p");
     }
 
-    private boolean isResultContain(Locator result, String key) {
-        return result.allInnerTexts().getLast().contains(dataMap.get(key));
+    public void navigateToPage(){
+        String textBoxUrl = PropertyReader.getProperty("url.textbox");
+        page.navigate(baseUrl + textBoxUrl);
     }
 
-    public TextBoxPage verifyPageVisibility(){
-        page.navigate(textBoxUrl);
-        Assert.assertEquals(titleLocator.innerText(), title);
-        return this;
-    }
-
-    public TextBoxPage fillAndSubmitWithValidData() {
-        Assert.assertFalse(page.locator("div #output").isVisible());
-        nameInput.fill(dataMap.get("name"));
-        emailInput.fill(dataMap.get("email"));
-        currentAddressInput.fill(dataMap.get("current"));
-        permanentAddressInput.fill(dataMap.get("permanent"));
-        submitButton.click();
-        return this;
-    }
-
-    public TextBoxPage fillAndSubmitWithInvalidEmail() {
+    public TextBoxPage reloadPage() {
         page.reload();
-        Assert.assertFalse(page.locator("div #output").isVisible());
-        String errorMessage = emailInput.evaluate("e => e.validationMessage").toString();
-        Assert.assertNotEquals(errorMessage, "Please include an '@' in the email address. '"+dataMap.get("invalidEmail")+"' is missing an '@'.");
-        nameInput.fill(dataMap.get("name"));
-        emailInput.fill(dataMap.get("invalidEmail"));
-        currentAddressInput.fill(dataMap.get("current"));
-        permanentAddressInput.fill(dataMap.get("permanent"));
+        return this;
+    }
+
+    public TextBoxPage fillAllInputAndSubmit(TextBoxData data) {
+        nameInput.fill(data.getFullName());
+        emailInput.fill(data.getEmail());
+        currentAddressInput.fill(data.getCurrentAddress());
+        permanentAddressInput.fill(data.getPermanentAddress());
         submitButton.click();
         return this;
     }
 
-    public TextBoxPage verifyInvalidEmailResult() {
-        Assert.assertFalse(page.locator("div #output").isVisible());
-        try {
-            emailInput.page().waitForFunction(
-                    "([e, args]) => window.getComputedStyle(e).getPropertyValue('border-top-color') === args.color",
-                    List.of(emailInput.elementHandle(), Map.of("color", "rgb(255, 0, 0)")),
-                    new Page.WaitForFunctionOptions().setTimeout(5000));
-        } catch (RuntimeException e) {
-            throw new RuntimeException(e);
+    public void verifyInvalidEmailError() {
+        String validationMessage = emailInput.evaluate("e => e.validationMessage").toString();
+        Assert.assertFalse(validationMessage.isEmpty());
+        assertThat(emailInput).hasClass(Pattern.compile("field-error"));
+        log.info("Invalid email field verified. 'field error' class appeared,\n error message verified : {}", validationMessage);
+    }
+
+    public void verifyValidResult(TextBoxData validInputData) {
+        assertThat(this.nameResult).hasText(Pattern.compile(validInputData.getFullName()));
+        assertThat(this.emailResult).hasText(Pattern.compile(validInputData.getEmail()));
+        assertThat(this.currentResult).hasText(Pattern.compile(validInputData.getCurrentAddress()));
+        assertThat(this.permanentResult).hasText(Pattern.compile(validInputData.getPermanentAddress()));
+        log.info("Valid data verified: \n {}", validInputData);
+    }
+
+    public void fillIncompleteInputAndSubmit(String... dataInOrder) {
+        if (dataInOrder.length > 0 && dataInOrder[0] != null) {
+            nameInput.fill(dataInOrder[0]);
         }
-        String newColor = emailInput.evaluate("e => window.getComputedStyle(e).getPropertyValue('border-top-color')").toString();
-        Assert.assertEquals(newColor, "rgb(255, 0, 0)");
-        String errorMessage = emailInput.evaluate("e => e.validationMessage").toString();
-        Assert.assertEquals(errorMessage, "Please include an '@' in the email address. '"+dataMap.get("invalidEmail")+"' is missing an '@'.");
-        log.info("Text Box subpage verified with invalid email.");
-        return this;
-    }
-
-    public TextBoxPage verifyValidResult() {
-        Assert.assertTrue(page.locator("div #output").isVisible());
-        Assert.assertTrue(isResultContain(nameResult, "name"));
-        Assert.assertTrue(isResultContain(emailResult, "email"));
-        Assert.assertTrue(isResultContain(currentResult, "current"));
-        Assert.assertTrue(isResultContain(permanentResult, "permanent"));
-        log.info("Text Box subpage verified with valid data.");
-        return this;
-    }
-
-    public void submitAndVerifyIncompleteForm(){
-        page.reload();
-        Assert.assertFalse(page.locator("div #output").isVisible());
-        emailInput.fill(dataMap.get("email"));
+        if (dataInOrder.length > 1 && dataInOrder[1] != null) {
+            emailInput.fill(dataInOrder[1]);
+        }
+        if (dataInOrder.length > 2 && dataInOrder[2] != null) {
+            currentResult.fill(dataInOrder[2]);
+        }
+        if (dataInOrder.length > 3 && dataInOrder[3] != null) {
+            permanentResult.fill(dataInOrder[3]);
+        }
         submitButton.click();
-        Assert.assertTrue(page.locator("div #output").isVisible());
-        Assert.assertEquals(page.locator("div #output div p").count(), 1);
-        nameInput.fill(dataMap.get("name"));
-        submitButton.click();
-        Assert.assertEquals(page.locator("div #output div p").count(), 2);
-        log.info("Text Box subpage verified with incomplete data.");
     }
 }

@@ -1,16 +1,15 @@
-package com.automation.page;
+package com.automation.base;
 
-import com.automation.utility.PropertyReader;
 import com.microsoft.playwright.Page;
 
 import static com.automation.utility.WebDriverManager.getHomeUrl;
 
 public class BasePage {
     protected final Page page;
-    protected final String homeUrl;
+    protected final String baseUrl;
 
     public BasePage(Page page) {
         this.page = page;
-        this.homeUrl = getHomeUrl();
+        this.baseUrl = getHomeUrl();
     }
 }

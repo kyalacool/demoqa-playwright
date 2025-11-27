@@ -52,14 +52,9 @@ public class TextBoxPage extends BasePage {
         this.textBoxOutPutParagraphs = page.locator("div #output p");
     }
 
-    public void navigateToPage(){
+    public void navigateToPage() {
         String textBoxUrl = PropertyReader.getProperty("url.textbox");
         page.navigate(baseUrl + textBoxUrl);
-    }
-
-    public TextBoxPage reloadPage() {
-        page.reload();
-        return this;
     }
 
     public TextBoxPage fillAllInputAndSubmit(TextBoxData data) {
@@ -86,19 +81,22 @@ public class TextBoxPage extends BasePage {
         log.info("Valid data verified: \n {}", validInputData);
     }
 
-    public void fillIncompleteInputAndSubmit(String... dataInOrder) {
-        if (dataInOrder.length > 0 && dataInOrder[0] != null) {
-            nameInput.fill(dataInOrder[0]);
+    public void fillIncompleteInputAndSubmit(TextBoxData inputData, int numberOfFilledInput) {
+
+        if (numberOfFilledInput < 0 || numberOfFilledInput > 3){
+            throw new IllegalArgumentException("The number of completed field should be between 0 and 3");
         }
-        if (dataInOrder.length > 1 && dataInOrder[1] != null) {
-            emailInput.fill(dataInOrder[1]);
+
+        if (numberOfFilledInput >= 1){
+            nameInput.fill(inputData.getFullName());
         }
-        if (dataInOrder.length > 2 && dataInOrder[2] != null) {
-            currentResult.fill(dataInOrder[2]);
+        if (numberOfFilledInput >= 2) {
+            emailInput.fill(inputData.getEmail());
         }
-        if (dataInOrder.length > 3 && dataInOrder[3] != null) {
-            permanentResult.fill(dataInOrder[3]);
+        if (numberOfFilledInput >= 3) {
+            currentAddressInput.fill(inputData.getCurrentAddress());
         }
+
         submitButton.click();
     }
 }

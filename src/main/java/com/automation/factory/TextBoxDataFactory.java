@@ -6,7 +6,7 @@ import com.github.javafaker.Faker;
 public class TextBoxDataFactory {
     private final static Faker faker = new Faker();
 
-    public static TextBoxData createValidTextBoxData(){
+    public static TextBoxData createValidTextBoxInputData(){
         return TextBoxData.builder()
                 .fullName(faker.name().fullName())
                 .email(faker.internet().emailAddress())
@@ -15,7 +15,7 @@ public class TextBoxDataFactory {
                 .build();
     }
 
-    public static TextBoxData createInvalidTextBoxDataWrongEmail(){
+    public static TextBoxData createInvalidTextBoxInputDataWithWrongEmail(){
         return TextBoxData.builder()
                 .fullName(faker.name().fullName())
                 .email(faker.name().firstName())

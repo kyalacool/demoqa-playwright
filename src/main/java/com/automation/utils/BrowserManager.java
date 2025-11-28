@@ -1,37 +1,23 @@
-package com.automation.base;
+package com.automation.utils;
 
 import com.microsoft.playwright.*;
 import lombok.extern.slf4j.Slf4j;
 import org.testng.ITestResult;
-import org.testng.annotations.AfterMethod;
-import org.testng.annotations.AfterTest;
-import org.testng.annotations.BeforeMethod;
-import org.testng.annotations.BeforeTest;
 
 import java.nio.file.Paths;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 
-import static com.automation.utility.PropertyReader.getProperty;
-import static com.automation.utility.WebDriverManager.getHomeUrl;
+import static com.automation.utils.PropertyReader.getProperty;
 
 @Slf4j
-public class BaseTest {
-    protected static String baseUrl = getHomeUrl();
-    private final ThreadLocal<Playwright> playwrightThreadLocal = new ThreadLocal<>();
-    private final ThreadLocal<Browser> browserThreadLocal = new ThreadLocal<>();
-    private final ThreadLocal<BrowserContext> browserContextThreadLocal = new ThreadLocal<>();
-    private final ThreadLocal<Page> pageThreadLocal = new ThreadLocal<>();
+public class BrowserManager {
+    private static final ThreadLocal<Playwright> playwrightThreadLocal = new ThreadLocal<>();
+    private static final ThreadLocal<Browser> browserThreadLocal = new ThreadLocal<>();
+    private static final ThreadLocal<BrowserContext> browserContextThreadLocal = new ThreadLocal<>();
+    private static final ThreadLocal<Page> pageThreadLocal = new ThreadLocal<>();
 
-    @BeforeTest
-    public void openLog() {
-        log.info("Browser : {}", getProperty("browser"));
-        log.info("Environment : {}", getProperty("env"));
-        Paths.get("target/traces").toFile().mkdirs();
-    }
-
-    @BeforeMethod
-    public void methodSetup() {
+    public static void setupBrowser(){
         playwrightThreadLocal.set(Playwright.create());
         Playwright playwright = playwrightThreadLocal.get();
         BrowserType.LaunchOptions options = new BrowserType.LaunchOptions()
@@ -56,8 +42,7 @@ public class BaseTest {
         pageThreadLocal.set(page);
     }
 
-    @AfterMethod
-    public void methodTearDown(ITestResult result) {
+    public static void tearDownBrowser(ITestResult result){
         BrowserContext context = browserContextThreadLocal.get();
         Page page = pageThreadLocal.get();
         Playwright playwright = playwrightThreadLocal.get();
@@ -91,12 +76,27 @@ public class BaseTest {
         }
     }
 
-    @AfterTest
-    public void closeLog() {
-        log.info("Pages, Drivers and Tests are closed.");
+    public static Page getPage() {
+        return pageThreadLocal.get();
     }
 
-    public Page getPage() {
-        return pageThreadLocal.get();
+    public static String getHomeUrl() {
+        String env = getProperty("env").toLowerCase();
+        switch (env) {
+            case "local" -> {
+                return urlType.LOCAL.url;
+            }
+            default -> throw new IllegalArgumentException("Environment not found." + env);
+        }
+    }
+
+    public enum urlType {
+        LOCAL("https://demoqa.com");
+
+        public final String url;
+
+        urlType(String url) {
+            this.url = url;
+        }
     }
 }

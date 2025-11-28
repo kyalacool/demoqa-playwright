@@ -1,8 +1,8 @@
-package com.automation.base;
+package com.automation.page;
 
 import com.microsoft.playwright.Page;
 
-import static com.automation.utility.WebDriverManager.getHomeUrl;
+import static com.automation.utils.BrowserManager.getHomeUrl;
 
 public class BasePage {
     protected final Page page;

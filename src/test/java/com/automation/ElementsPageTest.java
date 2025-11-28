@@ -1,12 +1,12 @@
-package com.automation.test;
+package com.automation;
 
-import com.automation.base.BaseTest;
 import com.automation.page.ElementsMainPage;
 import lombok.extern.slf4j.Slf4j;
 import org.testng.annotations.DataProvider;
 import org.testng.annotations.Test;
 
-import static com.automation.utility.PropertyReader.getProperty;
+import static com.automation.utils.BrowserManager.getPage;
+import static com.automation.utils.PropertyReader.getProperty;
 import static com.microsoft.playwright.assertions.PlaywrightAssertions.assertThat;
 
 @Slf4j

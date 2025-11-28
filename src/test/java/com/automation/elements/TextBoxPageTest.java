@@ -1,6 +1,6 @@
-package com.automation.test.elements;
+package com.automation.elements;
 
-import com.automation.base.BaseTest;
+import com.automation.BaseTest;
 import com.automation.factory.TextBoxDataFactory;
 import com.automation.model.TextBoxData;
 import com.automation.page.elements.TextBoxPage;
@@ -8,6 +8,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.testng.annotations.DataProvider;
 import org.testng.annotations.Test;
 
+import static com.automation.utils.BrowserManager.getPage;
 import static com.microsoft.playwright.assertions.PlaywrightAssertions.assertThat;
 
 @Slf4j

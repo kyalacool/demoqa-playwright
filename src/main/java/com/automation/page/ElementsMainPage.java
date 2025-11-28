@@ -1,7 +1,6 @@
 package com.automation.page;
 
-import com.automation.base.BasePage;
-import com.automation.utility.PropertyReader;
+import com.automation.utils.PropertyReader;
 import com.microsoft.playwright.Locator;
 import com.microsoft.playwright.Page;
 import com.microsoft.playwright.options.AriaRole;

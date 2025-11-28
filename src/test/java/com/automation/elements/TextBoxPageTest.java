@@ -1,6 +1,6 @@
 package com.automation.elements;
 
-import com.automation.BaseTest;
+import com.automation.base.BaseTest;
 import com.automation.factory.TextBoxDataFactory;
 import com.automation.model.TextBoxData;
 import com.automation.page.elements.TextBoxPage;

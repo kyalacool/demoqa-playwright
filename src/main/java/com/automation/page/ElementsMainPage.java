@@ -1,5 +1,6 @@
 package com.automation.page;
 
+import com.automation.page.base.BasePage;
 import com.automation.utils.PropertyReader;
 import com.microsoft.playwright.Locator;
 import com.microsoft.playwright.Page;

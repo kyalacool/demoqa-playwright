@@ -1,5 +1,6 @@
 package com.automation;
 
+import com.automation.base.BaseTest;
 import com.automation.page.HomePage;
 import lombok.extern.slf4j.Slf4j;
 import org.testng.annotations.DataProvider;

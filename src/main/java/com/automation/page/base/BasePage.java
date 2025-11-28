@@ -1,4 +1,4 @@
-package com.automation.page;
+package com.automation.page.base;
 
 import com.microsoft.playwright.Page;
 
